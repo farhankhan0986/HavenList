@@ -305,7 +305,6 @@ export default function FeaturedProperties() {
                     <div key={property.id} className="min-w-[84%] snap-start">
                       <PropertyCard
                         property={property}
-                        variant="stacked"
                         onClick={() => setSelectedProperty(property)}
                       />
                     </div>
@@ -328,7 +327,6 @@ export default function FeaturedProperties() {
                       <div key={property.id} className={cardColSpan}>
                         <PropertyCard
                           property={property}
-                          variant="default"
                           onClick={() => setSelectedProperty(property)}
                         />
                       </div>
@@ -750,33 +748,11 @@ function DropdownMenu({
   )
 }
 
-function ActiveFilterPill({ label, value }: { label: string; value: string }) {
-  return (
-    <span
-      style={{
-        fontSize: '10px',
-        fontFamily: 'var(--font-sans)',
-        color: 'var(--color-charcoal-muted)',
-        background: 'var(--color-warm-white)',
-        padding: '0.25rem 0.6rem',
-        border: '1px solid var(--color-sandstone-light)',
-      }}
-    >
-      <span style={{ color: 'var(--color-charcoal-faint)', marginRight: '0.25rem' }}>{label}:</span>
-      <span style={{ fontWeight: 400 }}>{value}</span>
-    </span>
-  )
-}
-
-// Removed FilterChip since ActiveFilterPill is used.
-
 function PropertyCard({
   property,
-  variant,
   onClick,
 }: {
   property: DiscoveryProperty
-  variant: 'featured' | 'default' | 'stacked'
   onClick: () => void
 }) {
   return (
@@ -1198,236 +1174,4 @@ function EmptyState() {
   )
 }
 
-import { useEffect } from 'react'
 
-function FilterSheet({
-  location,
-  dates,
-  guests,
-  priceRange,
-  propertyType,
-  onClose,
-  onLocationChange,
-  onDatesChange,
-  onGuestsChange,
-  onPriceRangeChange,
-  onPropertyTypeChange,
-  onReset,
-  resultCount,
-}: {
-  location: string
-  dates: string
-  guests: string
-  priceRange: string
-  propertyType: string
-  onClose: () => void
-  onLocationChange: (value: string) => void
-  onDatesChange: (value: string) => void
-  onGuestsChange: (value: string) => void
-  onPriceRangeChange: (value: string) => void
-  onPropertyTypeChange: (value: string) => void
-  onReset: () => void
-  resultCount: number
-}) {
-  const [visible, setVisible] = useState(false)
-
-  // Escape key support
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
-
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 16)
-    return () => clearTimeout(t)
-  }, [])
-
-  const handleClose = () => {
-    setVisible(false)
-    setTimeout(onClose, 320)
-  }
-
-  const hasActiveFilters =
-    location !== 'All Destinations' ||
-    dates !== 'Flexible' ||
-    guests !== 'Any Size' ||
-    priceRange !== 'Any Price' ||
-    propertyType !== 'All Types'
-
-  return (
-    <div className="fixed inset-0 z-[60] flex justify-end">
-      {/* Dimmed backdrop */}
-      <button
-        aria-label="Close filters"
-        className="absolute inset-0"
-        onClick={handleClose}
-        style={{
-          background: 'rgba(18,18,16,0.38)',
-          opacity: visible ? 1 : 0,
-          transition: 'opacity 0.3s ease',
-          border: 'none',
-          cursor: 'pointer',
-          width: '100%',
-          height: '100%',
-        }}
-      />
-
-      {/* Sliding panel */}
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          maxWidth: '420px',
-          height: '100%',
-          background: 'var(--color-warm-white)',
-          borderLeft: '1px solid var(--color-sandstone-light)',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: '-4px 0 24px rgba(28,24,18,0.08)',
-          transform: visible ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
-        }}
-      >
-        <div className="flex h-full flex-col p-6 md:p-8">
-          {/* Header */}
-          <div
-            className="flex items-start justify-between gap-6 pb-6"
-            style={{ borderBottom: '1px solid var(--color-sandstone-pale)' }}
-          >
-            <div>
-              <p className="section-label mb-3" style={{ color: 'var(--color-charcoal-faint)' }}>
-                Refine Search
-              </p>
-              <h3 className="font-serif text-3xl font-light leading-[1.1]" style={{ color: 'var(--color-charcoal)' }}>
-                Filter Collection
-              </h3>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-              {hasActiveFilters && (
-                <button
-                  onClick={onReset}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--color-sage)',
-                    fontSize: '11px',
-                    letterSpacing: '0.16em',
-                    textTransform: 'uppercase',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Reset
-                </button>
-              )}
-              <button
-                onClick={handleClose}
-                className="text-[11px] uppercase tracking-[0.16em] font-medium"
-                style={{ background: 'transparent', border: 'none', color: 'var(--color-charcoal-muted)', cursor: 'pointer' }}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-
-          {/* Body Options */}
-          <div className="flex-1 overflow-y-auto py-6 space-y-8 no-scrollbar">
-            <FilterSection title="Location" options={locationOptions} value={location} onChange={onLocationChange} />
-            <FilterSection title="Dates" options={dateOptions} value={dates} onChange={onDatesChange} />
-            <FilterSection title="Guests" options={guestOptions} value={guests} onChange={onGuestsChange} />
-            <FilterSection title="Price Range" options={priceOptions} value={priceRange} onChange={onPriceRangeChange} />
-            <FilterSection title="Property Type" options={typeOptions} value={propertyType} onChange={onPropertyTypeChange} />
-          </div>
-
-          {/* Action Footer */}
-          <div className="pt-6" style={{ borderTop: '1px solid var(--color-sandstone-pale)' }}>
-            <button
-              onClick={handleClose}
-              className="w-full py-4 text-[11px] uppercase tracking-[0.16em] font-medium"
-              style={{
-                background: 'var(--color-charcoal)',
-                border: '1px solid var(--color-charcoal)',
-                color: 'var(--color-warm-white)',
-                cursor: 'pointer',
-              }}
-            >
-              View {resultCount} Stays
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function FilterSection({
-  title,
-  options,
-  value,
-  onChange,
-}: {
-  title: string
-  options: string[]
-  value: string
-  onChange: (value: string) => void
-}) {
-  return (
-    <div>
-      <h4
-        style={{
-          fontSize: '0.625rem',
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-          color: 'var(--color-charcoal-faint)',
-          fontFamily: 'var(--font-sans)',
-          marginBottom: '1rem',
-          borderBottom: '1px solid var(--color-sandstone-pale)',
-          paddingBottom: '0.5rem',
-        }}
-      >
-        {title}
-      </h4>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
-        {options.map((option) => {
-          const isActive = option === value
-          return (
-            <button
-              key={option}
-              onClick={() => onChange(option)}
-              style={{
-                textAlign: 'left',
-                padding: '0.625rem 0.875rem',
-                fontSize: '0.6875rem',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                fontFamily: 'var(--font-sans)',
-                fontWeight: isActive ? 600 : 300,
-                color: isActive ? 'var(--color-charcoal)' : 'var(--color-charcoal-muted)',
-                background: isActive ? 'var(--color-cream)' : 'transparent',
-                border: 'none',
-                borderLeft: `2.5px solid ${isActive ? 'var(--color-sage)' : 'transparent'}`,
-                cursor: 'pointer',
-                transition: 'background 0.2s ease, border-color 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.background = 'rgba(248,245,240,0.45)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.background = 'transparent'
-                }
-              }}
-            >
-              {option}
-            </button>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
